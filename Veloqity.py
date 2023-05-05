@@ -154,6 +154,9 @@ cam_pitch = 0
 cam_yaw = 0
 APPR_SPEED = 0.05
 
+def warp_encode_cmd_to_num(x, y, z, action):
+    return (str(x).zfill(2))+(str(y).zfill(2))+(str(z).zfill(2))+(str(action).zfill(2))
+
 def legacy_encode_cmd_to_num(x, y, z, action):
     num = z
     num += y*16
@@ -204,8 +207,8 @@ def legacy(voxels=None, printer=None, givename=False):
             line = ''
             for x in range(16):
                 line += shape[x][y][z]
-            print(line)
-        print('----------------------------------------------------------------')
+        #     print(line)
+        # print('----------------------------------------------------------------')
     
     data.append(legacy_encode_cmd_to_num(0, 0, 0, 2))
     print_head_x = 0
@@ -220,6 +223,55 @@ def legacy(voxels=None, printer=None, givename=False):
                 data.append(legacy_encode_cmd_to_num(pos[0], pos[1], z, 0))
     data.append(legacy_encode_cmd_to_num(0, 0, 15, 3))
     return [data]
+
+def warp_slicer(voxels=None, printer=None, givename=False):
+    if givename:
+        return 'Warp Slicer'
+    if printer['type'] != '3axis':
+        return 'Printer type not supported'
+    if len(printer['extruders']) < 1:
+        return 'Printer has no extruders'
+    shape = []
+    data = []
+    for x in range(64):
+        shape.append([])
+        for y in range(64):
+            shape[-1].append(['-']*64)
+    v_shape = voxels.shape
+    x_offset = math.floor((64-v_shape[0])/2)
+    y_offset = math.floor((64-v_shape[1])/2)
+    z_offset = math.floor((64-v_shape[2])/2)
+    vs = voxels.points_to_indices(voxels.points)
+    for v in vs:
+        shape[v[0]+x_offset][v[2]+z_offset][v[1]+1] = 'b'
+    for x in range(64):
+        for y in range(64):
+            for z in range(64):
+                if shape[x][y][z] != '-':
+                    continue
+                if z == 15:
+                    continue
+                for over_z in range(z+1, 64):
+                    if shape[x][y][over_z] != '-':
+                        shape[x][y][z] = 's'
+                        break
+    for z in range(64):
+        for y in range(64):
+            line = ''
+            for x in range(64):
+                line += shape[x][y][z]
+        #     print(line)
+        # print('----------------------------------------------------------------')
+    for z in range(16):
+        zigzag = list(findOrder(64, 64))
+        for pos in zigzag:
+            if shape[pos[0]][pos[1]][z] == 's':
+                data.append(warp_encode_cmd_to_num(pos[0], z, pos[1], 7))
+        for pos in zigzag:
+            if shape[pos[0]][pos[1]][z] == 'b':
+                data.append(warp_encode_cmd_to_num(pos[0], z, pos[1], 1))
+    data.append(warp_encode_cmd_to_num(0, 0, 15, 99))
+    return data
 
 def tower_encode_cmd_to_num(x, y, z, action):
     num = x
@@ -527,7 +579,8 @@ printers = [
     {'name': 'Gigachad 3D Printer', 'build_volume': np.array(
         [64, 256, 64]), 'type': '3axis', 'extruders': ['block', 'support'], 'slicers': [cartesian_standard]},
     {'name': 'ItchyTec 5-axis Drone Printer', 'build_volume': np.array([float('inf'), float('inf'), float('inf')]), 'type': '5axis', 'extruders': ['block', 'support'], 'slicers': [drone_5axis]},
-    {'name': 'MTech Tower', 'build_volume': np.array([256, 256, 256]), 'type': '3axis', 'extruders': ['support', 'block'], 'slicers': [tower]}
+    {'name': 'MTech Tower', 'build_volume': np.array([256, 256, 256]), 'type': '3axis', 'extruders': ['support', 'block'], 'slicers': [tower]},
+    {'name': 'C.O.G. Inc. Warp Printer', 'build_volume': np.array([64, 64, 64]), 'type': '3axis', 'extruders': ['generic'], 'slicers': [warp_slicer]},
 ]
 
 

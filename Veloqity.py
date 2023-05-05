@@ -576,8 +576,8 @@ printers = [
         [16, 16, 16]), 'type': '3axis', 'extruders': ['block', 'support'], 'slicers': [legacy]},
     {'name': 'ItchyTec ATGP 3D Printer', 'build_volume': np.array(
         [16, 16, 16]), 'type': '3axis', 'extruders': ['block', 'support'], 'slicers': [legacy]},
-    {'name': 'Gigachad 3D Printer', 'build_volume': np.array(
-        [64, 256, 64]), 'type': '3axis', 'extruders': ['block', 'support'], 'slicers': [cartesian_standard]},
+    # {'name': 'Gigachad 3D Printer', 'build_volume': np.array(
+    #     [64, 256, 64]), 'type': '3axis', 'extruders': ['block', 'support'], 'slicers': [cartesian_standard]},
     {'name': 'ItchyTec 5-axis Drone Printer', 'build_volume': np.array([float('inf'), float('inf'), float('inf')]), 'type': '5axis', 'extruders': ['block', 'support'], 'slicers': [drone_5axis]},
     {'name': 'MTech Tower', 'build_volume': np.array([256, 256, 256]), 'type': '3axis', 'extruders': ['support', 'block'], 'slicers': [tower]},
     {'name': 'C.O.G. Inc. Warp Printer', 'build_volume': np.array([64, 64, 64]), 'type': '3axis', 'extruders': ['generic'], 'slicers': [warp_slicer]},

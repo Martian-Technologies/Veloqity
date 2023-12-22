@@ -342,10 +342,11 @@ def tower(voxels=None, printer=None, givename=False):
         if z > highest_z:
             break
         zigzag = list(findOrder(256, 256))
+        # reverse zigzag
+        zigzag.reverse()
         for pos in zigzag:
             if shape[pos[0]][pos[1]][z] == 's':
                 data.append(tower_encode_cmd_to_num(pos[0], pos[1], z, 0))
-        for pos in zigzag:
             if shape[pos[0]][pos[1]][z] == 'b':
                 data.append(tower_encode_cmd_to_num(pos[0], pos[1], z, 1))
     data.append(tower_encode_cmd_to_num(0, 0, 0, 3))
